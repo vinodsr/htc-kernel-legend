@@ -1019,10 +1019,10 @@ static const char vermagic[] = VERMAGIC_STRING;
 static int try_to_force_load(struct module *mod, const char *reason)
 {
 #ifdef CONFIG_MODULE_FORCE_LOAD
-	if (!test_taint(TAINT_FORCED_MODULE))
+	if (!test_taint(TAINT_CRAP))
 		printk(KERN_WARNING "%s: %s: kernel tainted.\n",
 		       mod->name, reason);
-	add_taint_module(mod, TAINT_FORCED_MODULE);
+	add_taint_module(mod, TAINT_CRAP);
 	return 0;
 #else
 	return -ENOEXEC;
@@ -2202,8 +2202,9 @@ static noinline struct module *load_module(void __user *umod,
 	} else if (!same_magic(modmagic, vermagic, versindex)) {
 		printk(KERN_ERR "%s: version magic '%s' should be '%s'\n",
 		       mod->name, modmagic, vermagic);
-		err = -ENOEXEC;
-		goto free_hdr;
+		err = try_to_force_load(mod, "magic");
+    if (err)
+		  goto free_hdr;
 	}
 
 	staging = get_modinfo(sechdrs, infoindex, "staging");

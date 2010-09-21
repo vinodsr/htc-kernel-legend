@@ -964,10 +964,10 @@ static const char vermagic[] = VERMAGIC_STRING;
 static int try_to_force_load(struct module *mod, const char *symname)
 {
 #ifdef CONFIG_MODULE_FORCE_LOAD
-	if (!test_taint(TAINT_FORCED_MODULE))
+	if (!test_taint(TAINT_CRAP))
 		printk("%s: no version for \"%s\" found: kernel tainted.\n",
 		       mod->name, symname);
-	add_taint_module(mod, TAINT_FORCED_MODULE);
+	add_taint_module(mod, TAINT_CRAP);
 	return 0;
 #else
 	return -ENOEXEC;
@@ -978,7 +978,7 @@ static int try_to_force_load(struct module *mod, const char *symname)
 static int check_version(Elf_Shdr *sechdrs,
 			 unsigned int versindex,
 			 const char *symname,
-			 struct module *mod, 
+			 struct module *mod,
 			 const unsigned long *crc)
 {
 	unsigned int i, num_versions;
@@ -1042,7 +1042,7 @@ static inline int same_magic(const char *amagic, const char *bmagic,
 static inline int check_version(Elf_Shdr *sechdrs,
 				unsigned int versindex,
 				const char *symname,
-				struct module *mod, 
+				struct module *mod,
 				const unsigned long *crc)
 {
 	return 1;
@@ -1984,8 +1984,9 @@ static noinline struct module *load_module(void __user *umod,
 	} else if (!same_magic(modmagic, vermagic, versindex)) {
 		printk(KERN_ERR "%s: version magic '%s' should be '%s'\n",
 		       mod->name, modmagic, vermagic);
-		err = -ENOEXEC;
-		goto free_hdr;
+		err = try_to_force_load(mod, "magic");
+    if (err)
+		  goto free_hdr;
 	}
 
 	staging = get_modinfo(sechdrs, infoindex, "staging");

@@ -37,3 +37,4 @@ Examples:
 To get normal blinking underline, use: echo -e '\033[?2c'
 To get blinking block, use:            echo -e '\033[?6c'
 To get red non-blinking block, use:    echo -e '\033[?17;0;64c'
+   
